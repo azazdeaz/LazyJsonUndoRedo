@@ -1,0 +1,28 @@
+{
+  "name": "LazyJsonUndoRedo",
+  "version": "0.0.0",
+  "description": "Makes a history with automatic undo/redo functionality for the specified javascript objects, using ES6 Object.observe().",
+  "main": "LazyJsonUndoRedo.js",
+  "scripts": {
+    "test": "test"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/azazdeaz/LazyJsonUndoRedo.git"
+  },
+  "keywords": [
+    "undo",
+    "redo",
+    "history",
+    "observe",
+    "json",
+    "automatic",
+    "editor"
+  ],
+  "author": "Polgár András",
+  "license": "unlicense",
+  "bugs": {
+    "url": "https://github.com/azazdeaz/LazyJsonUndoRedo/issues"
+  },
+  "homepage": "https://github.com/azazdeaz/LazyJsonUndoRedo"
+}
