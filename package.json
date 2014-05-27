@@ -4,7 +4,7 @@
   "description": "Makes a history with automatic undo/redo functionality for the specified javascript objects, using ES6 Object.observe().",
   "main": "LazyJsonUndoRedo.js",
   "scripts": {
-    "test": "test"
+    "test": "mocha --harmony --ui tdd --reporter spec"
   },
   "repository": {
     "type": "git",
@@ -24,5 +24,9 @@
   "bugs": {
     "url": "https://github.com/azazdeaz/LazyJsonUndoRedo/issues"
   },
-  "homepage": "https://github.com/azazdeaz/LazyJsonUndoRedo"
+  "homepage": "https://github.com/azazdeaz/LazyJsonUndoRedo",
+  "devDependencies": {
+    "mocha": "^1.19.0",
+    "chai": "^1.9.1"
+  }
 }

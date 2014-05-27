@@ -20,11 +20,15 @@
     
     function LazyJsonUndoRedo(obj) {
 
+        if (!LazyJsonUndoRedo.checkSupport()) {
+            throw 'This environment doesn\'t fully support the ES6 Object.observe()'; 
+        }
+
         this._history = [];
         // this._observedObjects = [];
         this._pointer = -1;
 
-        this.recChanges = this.recChanges.bind(this);
+        this._recChanges = this._recChanges.bind(this);
 
         this.observeTree(obj);
     }
@@ -33,12 +37,12 @@
 
     p.observeTree = function (obj) {
 
-        getObserveFn(obj)(obj, this.recChanges);
+        getObserveFn(obj)(obj, this._recChanges);
 
         Object.keys(obj).forEach(function (key) {
           
             if (typeof(obj[key]) === 'object') {
-
+console.log('also observe', key)
                 this.observeTree(obj[key]);
             }
         }, this);
@@ -46,7 +50,7 @@
 
     p.unobserveTree = function(obj) {
 
-        getUnobserveFn(obj)(obj, this.recChanges);
+        getUnobserveFn(obj)(obj, this._recChanges);
 
         Object.keys(obj).forEach(function (key) {
           
@@ -57,7 +61,7 @@
         }, this);
     };
 
-    p.recChanges = function(changes) {
+    p._recChanges = function(changes) {
 
         var that = this;
 
@@ -68,16 +72,23 @@
 
         changes.forEach(function (change) {
 
-            var rec = Object.create(null);
+            if (typeof(change) === 'number') {//it's a flag
 
-            Object.keys(change).forEach(function (key) {
+                that._history.push(change);
+            }
+            else {
+                var rec = Object.create(null);
 
-                rec[key] = change[key];
-            });
+                Object.keys(change).forEach(function (key) {
 
-            that._history.push(rec);
-            console.log(rec);
-            that.observeTree(change.object);
+                    rec[key] = change[key];
+                });
+
+                that._history.push(rec);
+                console.log('new rec', rec);
+                that.observeTree(change.object);
+            }
+
         });
 
         this._pointer += changes.length;
@@ -85,7 +96,7 @@
 
     p.undo = function() {
 
-        Object.deliverChangeRecords(this.recChanges);
+        this.deliverChangeRecords();
 
         if (this._pointer < 0) {
 
@@ -93,12 +104,30 @@
         }
 
         var rec = this._history[this._pointer--];
-        this._reverseRecord(rec);
+
+        if (typeof(rec) === 'number') {
+
+            for (var startFlagIdx = this._pointer; startFlagIdx >= 0; --startFlagIdx) {
+
+                if (this._history[startFlagIdx] === rec - 1) {
+
+                    do {
+                        this._reverseRecord(this._history[this._pointer--]);
+                    } 
+                    while (this._pointer >= startFlagIdx);
+
+                    break;
+                }
+            }
+        }
+        else {
+            this._reverseRecord(rec);
+        }
     };
 
     p.redo = function() {
 
-        Object.deliverChangeRecords(this.recChanges);
+        this.deliverChangeRecords();
 
         if (this._pointer >= this._history.length - 1) {
 
@@ -106,14 +135,41 @@
         }
 
         var rec = this._history[++this._pointer];
-        this._reverseRecord(rec);
+        
+        if (typeof(rec) === 'number') {
+
+            for (var endFlagIdx = this._pointer; endFlagIdx < this._history.length; ++endFlagIdx) {
+
+                if (this._history[endFlagIdx] === rec + 1) {
+
+                    do {
+                        this._reverseRecord(this._history[this._pointer++]);
+                    } 
+                    while (this._pointer <= endFlagIdx);
+
+                    break;
+                }
+            }
+        }
+        else {
+            this._reverseRecord(rec);
+        }
     };
+
+    p.deliverChangeRecords = function () {
+
+        Object.deliverChangeRecords(this._recChanges);
+    }
 
     p._reverseRecord = function (rec) {
 
+        if (typeof(rec) === 'number') {//it's a flag
+            return;
+        }
+
         var temp;
 
-        getUnobserveFn(rec.object)(rec.object, this.recChanges);
+        getUnobserveFn(rec.object)(rec.object, this._recChanges);
 
         switch (rec.type) {
 
@@ -131,8 +187,8 @@
 
             case 'delete':
                 rec.type = 'add';
+                rec.object[rec.name] = rec.oldValue;
                 delete rec.oldValue;
-                delete rec.object[rec.name];
                 break;
 
             case 'splice':
@@ -142,23 +198,24 @@
                 break;
         }
 
-        getObserveFn(rec.object)(rec.object, this.recChanges);
+        getObserveFn(rec.object)(rec.object, this._recChanges);
     };
-
-
 
 
 
 
     p.startFlag = function () {
 
-        this.recChanges([flagCounter++]);
+        this.deliverChangeRecords();
+
+        this._recChanges([flagCounter++]);
         return flagCounter++;
     };
 
     p.endFlag = function (flag) {
 
-        this.recChanges([flag]);
+        this.deliverChangeRecords();
+        this._recChanges([flag]);
     };
 
     p.wrap = function (fn, ctx) {
@@ -186,6 +243,19 @@
 
     function getUnobserveFn(obj) {
         return obj.constructor && obj.constructor.unobserve || Array.isArray(obj) ? Array.unobserve : Object.unobserve
+    }
+
+    LazyJsonUndoRedo.checkSupport = function () {
+
+        if (typeof(Object.observe) !== 'function') {
+            return false;
+        }
+
+        if (typeof(Array.observe) !== 'function') {
+            return false;
+        }
+
+        return true;
     }
 
 
