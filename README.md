@@ -6,6 +6,7 @@ Makes a history with automatic undo/redo functionality for the specified javascr
  -- under construction --
 
 Todos:
+======
     - more test case
     - add demos
     - describe usage
