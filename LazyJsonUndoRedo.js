@@ -37,7 +37,7 @@
 
     p.observeTree = function (obj) {
 
-        getObserveFn(obj)(obj, this._recChanges);
+        this.observe(obj);
 
         Object.keys(obj).forEach(function (key) {
           
@@ -50,7 +50,7 @@
 
     p.unobserveTree = function(obj) {
 
-        getUnobserveFn(obj)(obj, this._recChanges);
+        this.unobserve(obj);
 
         Object.keys(obj).forEach(function (key) {
           
@@ -169,7 +169,7 @@
 
         var temp;
 
-        getUnobserveFn(rec.object)(rec.object, this._recChanges);
+        this.unobserve(rec.object);
 
         switch (rec.type) {
 
@@ -198,7 +198,7 @@
                 break;
         }
 
-        getObserveFn(rec.object)(rec.object, this._recChanges);
+        this.observe(rec.object);
     };
 
 
@@ -233,27 +233,111 @@
     };
 
 
+    p.observe = function (obj) {
 
+        var observeFn = obj.constructor && obj.constructor.observe || Array.isArray(obj) ? Array.observe : Object.observe;
+        observeFn(obj, this._recChanges);
+    };
 
-    function getObserveFn(obj) {
-        return obj.constructor && obj.constructor.observe || Array.isArray(obj) ? Array.observe : Object.observe;
-    }
+    p.unobserve = function (obj) {
 
-    function getUnobserveFn(obj) {
-        return obj.constructor && obj.constructor.unobserve || Array.isArray(obj) ? Array.unobserve : Object.unobserve;
-    }
+        var unobserveFn = obj.constructor && obj.constructor.unobserve || Array.isArray(obj) ? Array.unobserve : Object.unobserve;
+        unobserveFn(obj, this._recChanges);
+    };
 
     LazyJsonUndoRedo.checkSupport = function () {
 
-        if (typeof(Object.observe) !== 'function') {
-            return false;
+        if (typeof(Object.observe) === 'function' && typeof(Array.observe) === 'function') {
+            
+            return true;
+        }
+        else if (Platform && typeof(Platform.performMicrotaskCheckpoint) === 'function' &&
+            typeof(ObjectObserver) === 'function' && typeof(ArrayObserver) === 'function')
+        {
+            this.usePolymerShim();
+            return true;
         }
 
-        if (typeof(Array.observe) !== 'function') {
-            return false;
+        return false;
+    };
+
+
+//--------------------------------------------------------------------------------------------------
+//  Polymer plugin
+//--------------------------------------------------------------------------------------------------
+    
+    p.usePolymerShim = function () {
+
+        if (this._isPolymerShimInited) {
+            return;
+        }
+        this._isPolymerShimInited = true;
+
+        var observeds = [];
+
+        p.deliverChangeRecords = function () {
+
+            Platform.performMicrotaskCheckpoint();
+        };
+
+        p.observe = function (obj) {
+
+            Array.isArray(obj) ? observeArr.call(this, obj) : observeObj.call(this, obj);
+        };
+
+        p.unobserve = function (obj) {
+
+            for (var i = 0; i < observeds.length; ++i) {
+
+                if (observeds[i].object === obj) {
+
+                    observeds.splice(i--, 1)[0].observer.cancel();
+                }
+            }
+        };
+
+        function observeObj(obj) {
+            
+            var observer = new ObjectObserver(obj);
+
+            observeds.push({observer: observer, object: obj});
+
+            observer.open(function(added, removed, changed, getOldValueFn) {
+              
+                var changes = [];
+
+                Object.keys(added).forEach(function(property) {
+                    changes.push({object:obj, type: 'add', name: property});
+                });
+
+                Object.keys(removed).forEach(function(property) {
+                    changes.push({object:obj, type: 'delete', name: property, oldValue: getOldValueFn(property)});
+                });
+
+                Object.keys(changed).forEach(function(property) {
+                    changes.push({object:obj, type: 'change', name: property, oldValue: getOldValueFn(property)});
+                });
+
+                this._recChanges(changes);
+            });
         }
 
-        return true;
+        function observeArr(arr) {
+
+            var observer = new ArrayObserver(arr);
+
+            observeds.push({observer: observer, object: arr});
+
+            observer.open(function(splices) {
+              
+                splices.forEach(function(splice) {
+                    
+                    splice.object = arr;
+                });
+
+                this._recChanges(splices);
+            });
+        }
     };
 
 
