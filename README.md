@@ -13,7 +13,7 @@ Usage
 
 ```javascript
 
-Start
+Init
  var o = {}, ljur = new LazyJsonUndoRedo(o);
  
  o.a = 1;
