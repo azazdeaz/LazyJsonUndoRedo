@@ -25,7 +25,7 @@
         }
 
         this._history = [];
-        // this._observedObjects = [];
+
         this._pointer = -1;
 
         this._recChanges = this._recChanges.bind(this);
@@ -42,7 +42,7 @@
         Object.keys(obj).forEach(function (key) {
           
             if (typeof(obj[key]) === 'object') {
-console.log('also observe', key)
+
                 this.observeTree(obj[key]);
             }
         }, this);
@@ -85,7 +85,7 @@ console.log('also observe', key)
                 });
 
                 that._history.push(rec);
-                console.log('new rec', rec);
+
                 that.observeTree(change.object);
             }
 
@@ -159,7 +159,7 @@ console.log('also observe', key)
     p.deliverChangeRecords = function () {
 
         Object.deliverChangeRecords(this._recChanges);
-    }
+    };
 
     p._reverseRecord = function (rec) {
 
@@ -222,27 +222,25 @@ console.log('also observe', key)
 
         var that = this;
 
-        return wrapper.bind(fn, ctx);
-        
-        function wrapper(fn, ctx) {
+        return function () {
 
             var endFlag = that.startFlag();
 
             fn.apply(ctx, Array.prototype.slice.call(arguments,  2));
 
             that.endFlag(endFlag);
-        }
+        };
     };
 
 
 
 
     function getObserveFn(obj) {
-        return obj.constructor && obj.constructor.observe || Array.isArray(obj) ? Array.observe : Object.observe
+        return obj.constructor && obj.constructor.observe || Array.isArray(obj) ? Array.observe : Object.observe;
     }
 
     function getUnobserveFn(obj) {
-        return obj.constructor && obj.constructor.unobserve || Array.isArray(obj) ? Array.unobserve : Object.unobserve
+        return obj.constructor && obj.constructor.unobserve || Array.isArray(obj) ? Array.unobserve : Object.unobserve;
     }
 
     LazyJsonUndoRedo.checkSupport = function () {
@@ -256,7 +254,7 @@ console.log('also observe', key)
         }
 
         return true;
-    }
+    };
 
 
     return LazyJsonUndoRedo;

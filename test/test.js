@@ -226,4 +226,47 @@ suite('Test LazyJsonUndoRedo', function () {
             assert.deepEqual(a, [1, 0, 2]);
         });
     });
+
+    suite('others', function () {
+
+        test('listen more object', function () {
+            
+            var o0 = {}, o1 = {};
+            var ljur = new LazyJsonUndoRedo(o0);
+            ljur.observeTree(o1);
+            o0.a = 0;
+            o1.b = 1;
+            o0.c = 2;
+            o1.d = 3;
+            assert.deepEqual(o0, {a: 0, c: 2});
+            assert.deepEqual(o1, {b: 1, d: 3});
+            ljur.undo();
+            assert.deepEqual(o0, {a: 0, c: 2});
+            assert.deepEqual(o1, {b: 1});
+            ljur.undo();
+            assert.deepEqual(o0, {a: 0});
+            assert.deepEqual(o1, {b: 1});
+            ljur.undo();
+            assert.deepEqual(o0, {a: 0});
+            assert.deepEqual(o1, {});
+            ljur.undo();
+            assert.deepEqual(o0, {});
+            assert.deepEqual(o1, {});
+            ljur.redo();
+            assert.deepEqual(o0, {a: 0});
+            assert.deepEqual(o1, {});
+            ljur.redo();
+            assert.deepEqual(o0, {a: 0});
+            assert.deepEqual(o1, {b: 1});
+            ljur.redo();
+            assert.deepEqual(o0, {a: 0, c: 2});
+            assert.deepEqual(o1, {b: 1});
+            ljur.redo();
+            assert.deepEqual(o0, {a: 0, c: 2});
+            assert.deepEqual(o1, {b: 1, d: 3});
+
+        });
+    });
 });
+
+
