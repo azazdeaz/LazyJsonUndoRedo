@@ -32,7 +32,7 @@ suite('Test LazyJsonUndoRedo', function () {
             var o = {};
             var ljur = new LazyJsonUndoRedo(o);
             o.a = {b: {}};
-            ljur.deliverChangeRecords();
+            ljur.rec();
             o.a.b.c = {d:4};
             assert.deepEqual(o, {a: {b: {c: {d:4}}}});
             ljur.undo();
@@ -97,7 +97,7 @@ suite('Test LazyJsonUndoRedo', function () {
             var a = [];
             var ljur = new LazyJsonUndoRedo(a);
             a.push(1, 2, 3);            
-            if(ljur.usingShim) ljur.deliverChangeRecords();
+            if(ljur.usingShim) ljur.rec();
             a[1] = 0;
             ljur.undo();
             assert.deepEqual(a, [1, 2, 3]);
@@ -111,12 +111,12 @@ suite('Test LazyJsonUndoRedo', function () {
             
             var a = [];
             var ljur = new LazyJsonUndoRedo(a);
-            a.push(4, 5, 6);            if(ljur.usingShim) ljur.deliverChangeRecords();
-            a.unshift(0, 1, 2, 3);      if(ljur.usingShim) ljur.deliverChangeRecords();
-            a.push(7, 8, 9, 10);        if(ljur.usingShim) ljur.deliverChangeRecords();
-            a.shift();                  if(ljur.usingShim) ljur.deliverChangeRecords();
-            a.pop();                    if(ljur.usingShim) ljur.deliverChangeRecords();
-            a.splice(2, 3, -1, -2, -3); if(ljur.usingShim) ljur.deliverChangeRecords();
+            a.push(4, 5, 6);            if(ljur.usingShim) ljur.rec();
+            a.unshift(0, 1, 2, 3);      if(ljur.usingShim) ljur.rec();
+            a.push(7, 8, 9, 10);        if(ljur.usingShim) ljur.rec();
+            a.shift();                  if(ljur.usingShim) ljur.rec();
+            a.pop();                    if(ljur.usingShim) ljur.rec();
+            a.splice(2, 3, -1, -2, -3); if(ljur.usingShim) ljur.rec();
             
 
             assert.deepEqual(a, [1, 2, -1, -2, -3, 6, 7, 8, 9]);
@@ -153,7 +153,7 @@ suite('Test LazyJsonUndoRedo', function () {
         //     var a = [0];
         //     var ljur = new LazyJsonUndoRedo(a);
         //     a[3] = 3;
-        //     ljur.deliverChangeRecords();
+        //     ljur.rec();
         //     assert.deepEqual(a, [0, , , 3]);
         //     ljur.undo();
         //     assert.deepEqual(a, [0]);
@@ -231,9 +231,9 @@ suite('Test LazyJsonUndoRedo', function () {
             var o0 = {}, o1 = {};
             var ljur = new LazyJsonUndoRedo(o0);
             ljur.observeTree(o1);
-            o0.a = 0; if(ljur.usingShim) ljur.deliverChangeRecords();
-            o1.b = 1; if(ljur.usingShim) ljur.deliverChangeRecords();
-            o0.c = 2; if(ljur.usingShim) ljur.deliverChangeRecords();
+            o0.a = 0; if(ljur.usingShim) ljur.rec();
+            o1.b = 1; if(ljur.usingShim) ljur.rec();
+            o0.c = 2; if(ljur.usingShim) ljur.rec();
             o1.d = 3; 
             assert.deepEqual(o0, {a: 0, c: 2});
             assert.deepEqual(o1, {b: 1, d: 3});

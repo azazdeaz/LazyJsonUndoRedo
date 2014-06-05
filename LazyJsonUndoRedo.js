@@ -101,7 +101,7 @@
 
     p.undo = function() {
 
-        this.deliverChangeRecords();
+        this.rec();
 
         if (this._pointer < 0) {
 
@@ -132,7 +132,7 @@
 
     p.redo = function() {
 
-        this.deliverChangeRecords();
+        this.rec();
 
         if (this._pointer >= this._history.length - 1) {
 
@@ -161,7 +161,7 @@
         }
     };
 
-    p.deliverChangeRecords = function () {
+    p.rec = function () {
 
         Object.deliverChangeRecords(this._recChanges);
     };
@@ -211,7 +211,7 @@
 
     p.startFlag = function () {
 
-        this.deliverChangeRecords();
+        this.rec();
 
         this._recChanges([flagCounter++]);
         return flagCounter++;
@@ -219,7 +219,7 @@
 
     p.endFlag = function (flag) {
 
-        this.deliverChangeRecords();
+        this.rec();
         this._recChanges([flag]);
     };
 
@@ -280,7 +280,7 @@
 
         var observers = [], observeds = [];
 
-        this.deliverChangeRecords = function () {
+        this.rec = function () {
 
             Platform.performMicrotaskCheckpoint();
         };
