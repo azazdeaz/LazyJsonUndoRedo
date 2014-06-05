@@ -1,0 +1,38 @@
+{
+  "name": "LazyJsonUndoRedo",
+  "main": "LazyJsonUndoRedo.js",
+  "version": "0.0.0",
+  "homepage": "https://github.com/azazdeaz/LazyJsonUndoRedo",
+  "authors": [
+    "polgar andras <azazdeaz@gmail.com>"
+  ],
+  "description": "Makes a history with automatic undo/redo functionality for the specified javascript objects, using ES6 Object.observe() or Polymer's shim.",
+  "moduleType": [
+    "amd",
+    "globals",
+    "node"
+  ],
+  "keywords": [
+    "undo",
+    "redo",
+    "history",
+    "observe",
+    "json",
+    "automatic",
+    "editor",
+    "es6"
+  ],
+  "license": "unlicensed",
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components",
+    "test",
+    "tests"
+  ],
+  "devDependencies": {
+    "mocha": "~1.20.1",
+    "chai": "~1.9.1",
+    "polymer": "~0.2.3"
+  }
+}
