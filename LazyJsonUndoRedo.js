@@ -20,8 +20,13 @@
     
     function LazyJsonUndoRedo(obj) {
 
-        if (!LazyJsonUndoRedo.checkSupport()) {
-            throw 'This environment doesn\'t fully support the ES6 Object.observe()'; 
+        var support = LazyJsonUndoRedo.checkSupport();
+
+        if (support === 'polymer') {
+            this.usePolymerShim();
+        }
+        else if (!support) {
+            throw Error('This environment doesn\'t support the ES6 Object.observe()'); 
         }
 
         this._history = [];
@@ -249,13 +254,12 @@
 
         if (typeof(Object.observe) === 'function' && typeof(Array.observe) === 'function') {
             
-            return true;
+            return 'native';
         }
-        else if (Platform && typeof(Platform.performMicrotaskCheckpoint) === 'function' &&
-            typeof(ObjectObserver) === 'function' && typeof(ArrayObserver) === 'function')
+        else if (window.Platform && typeof(Platform.performMicrotaskCheckpoint) === 'function' &&
+            typeof(window.ObjectObserver) === 'function' && typeof(window.ArrayObserver) === 'function')
         {
-            this.usePolymerShim();
-            return true;
+            return 'polymer';
         }
 
         return false;
@@ -272,35 +276,46 @@
             return;
         }
         this._isPolymerShimInited = true;
+        this.usingShim = true;
 
-        var observeds = [];
+        var observers = [], observeds = [];
 
-        p.deliverChangeRecords = function () {
+        this.deliverChangeRecords = function () {
 
             Platform.performMicrotaskCheckpoint();
         };
 
-        p.observe = function (obj) {
+        this.observe = function (obj) {
 
             Array.isArray(obj) ? observeArr.call(this, obj) : observeObj.call(this, obj);
         };
 
-        p.unobserve = function (obj) {
+        this.unobserve = function (obj) {
 
-            for (var i = 0; i < observeds.length; ++i) {
+            var idx = observeds.indexOf(obj);
 
-                if (observeds[i].object === obj) {
+            if (idx !== -1) {
 
-                    observeds.splice(i--, 1)[0].observer.cancel();
-                }
+                observeds.splice(idx, 1);
+                observers.splice(idx, 1)[0].close();
             }
         };
 
-        function observeObj(obj) {
-            
-            var observer = new ObjectObserver(obj);
+        function isObserved(obj) {
 
-            observeds.push({observer: observer, object: obj});
+            return observeds.indexOf(obj) !== -1;
+        }
+
+        function observeObj(obj) {
+
+            if (isObserved(obj)) {
+                return;
+            }
+            
+            var that = this, observer = new ObjectObserver(obj);
+
+            observeds.push(obj);
+            observers.push(observer);
 
             observer.open(function(added, removed, changed, getOldValueFn) {
               
@@ -315,27 +330,33 @@
                 });
 
                 Object.keys(changed).forEach(function(property) {
-                    changes.push({object:obj, type: 'change', name: property, oldValue: getOldValueFn(property)});
+                    changes.push({object:obj, type: 'update', name: property, oldValue: getOldValueFn(property)});
                 });
 
-                this._recChanges(changes);
+                that._recChanges(changes);
             });
         }
 
         function observeArr(arr) {
 
-            var observer = new ArrayObserver(arr);
+            if (isObserved(arr)) {
+                return;
+            }
+            
+            var that = this, observer = new ArrayObserver(arr);
 
-            observeds.push({observer: observer, object: arr});
+            observeds.push(arr);
+            observers.push(observer);
 
             observer.open(function(splices) {
               
                 splices.forEach(function(splice) {
                     
                     splice.object = arr;
+                    splice.type = 'splice';
                 });
 
-                this._recChanges(splices);
+                that._recChanges(splices);
             });
         }
     };
