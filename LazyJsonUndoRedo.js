@@ -16,7 +16,7 @@
 }(this, function () {
     'use strict';
 
-    var flagCounter = 0, maxHistoryLength = -1;
+    var flagCounter = 0;
     
     function LazyJsonUndoRedo(obj) {
 
@@ -30,9 +30,7 @@
         }
 
         this._history = [];
-
         this._pointer = -1;
-
         this._recChanges = this._recChanges.bind(this);
 
         this.observeTree(obj);
@@ -93,7 +91,6 @@
 
                 that.observeTree(change.object);
             }
-
         });
 
         this._pointer += changes.length;
