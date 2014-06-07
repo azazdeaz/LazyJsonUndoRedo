@@ -9,7 +9,6 @@ ES6 Object.observe() is only supported inNative support in Chrome 36+ and Nodejs
 [edit json](http://codepen.io/azazdeaz/pen/ucqAm?editors=001)
 
 ####Unit test
----------
 [native](http://azazdeaz.github.io/LazyJsonUndoRedo/test/test-native.html)
 
 [with polymer shim](http://azazdeaz.github.io/LazyJsonUndoRedo/test/test-polymer.html)
