@@ -3,9 +3,9 @@ LazyJsonUndoRedo
 
 Makes a history with automatic undo/redo functionality for the specified javascript objects, using ES6 Object.observe().
 
- -- under construction --
+[Quick demo](http://codepen.io/azazdeaz/pen/ucqAm?editors=001)
 
-Currently supported in Chrome 36(unstable) and Nodejs 11.13(unstable)
+ES6 Object.observe() is only supported inNative support in Chrome 36+ and Nodejs 11.13+ yet, but LJUR is also usable with [polymer](https://github.com/polymer/polymer)([observe-js](https://github.com/Polymer/observe-js))
 
 Usage
 -----
@@ -43,7 +43,7 @@ Flagging
 
 
 Force save
- //fast changes can be merged by the api
+ //fast changes can be merged by the api (specially if you're using shim)
  o = {}, ljur = new LazyJsonUndoRedo(o);
  o.g = {};
  o.g.h = 1;
@@ -66,9 +66,3 @@ Check support
  LazyJsonUndoRedo.checkSupport();//currently just in Chrome 36 and Nodejs 11.13
 
 ```
-
-Todos
------
-    - more test case
-    - add demos
-    - test with polyfills
