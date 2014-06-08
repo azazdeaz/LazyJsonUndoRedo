@@ -6,7 +6,7 @@
   "authors": [
     "polgar andras <azazdeaz@gmail.com>"
   ],
-  "description": "Makes a history with automatic undo/redo functionality for the specified javascript objects, using ES6 Object.observe() or Polymer's shim.",
+  "description": "Makes a history with automatic undo/redo functionality for nested javascript objects, using ES6 Object.observe() or Polymer's shim.",
   "moduleType": [
     "amd",
     "globals",

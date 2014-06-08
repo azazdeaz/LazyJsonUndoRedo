@@ -76,6 +76,12 @@ suite('Test LazyJsonUndoRedo', function () {
             ljur.undo();
             assert.deepEqual(o, {});
         });
+
+        test('test4', function () {
+            
+            var o = {a: null, b: undefined, d: Infinity};
+            var ljur = new LazyJsonUndoRedo(o);
+        });
     });
 
     suite('about arrays', function () {

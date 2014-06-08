@@ -40,6 +40,10 @@
 
     p.observeTree = function (obj) {
 
+        if (!obj || typeof(obj) !== 'object') {
+            return;
+        }
+
         this.observe(obj);
 
         Object.keys(obj).forEach(function (key) {
@@ -53,6 +57,10 @@
 
     p.unobserveTree = function(obj) {
 
+        if (!obj || typeof(obj) !== 'object') {
+            return;
+        }
+        
         this.unobserve(obj);
 
         Object.keys(obj).forEach(function (key) {
