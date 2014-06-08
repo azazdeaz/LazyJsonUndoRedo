@@ -28,7 +28,9 @@
     "node_modules",
     "bower_components",
     "test",
-    "tests"
+    "tests",
+    "LICENSE",
+    "*.md"
   ],
   "devDependencies": {
     "mocha": "~1.20.1",
