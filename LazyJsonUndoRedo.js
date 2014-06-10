@@ -38,19 +38,24 @@
 
     var p = LazyJsonUndoRedo.prototype;
 
-    p.observeTree = function (obj) {
+    p.observeTree = function (obj, route) {
 
         if (!obj || typeof(obj) !== 'object') {
             return;
         }
 
+        route = (route || []).concat([obj]);
+
         this.observe(obj);
 
         Object.keys(obj).forEach(function (key) {
-          
-            if (typeof(obj[key]) === 'object') {
-
-                this.observeTree(obj[key]);
+            if (route.indexOf(obj[key]) !== -1) {
+                console.log('stop cyclic ref', key)
+            }
+            if (typeof(obj[key]) === 'object' /*&&
+                route.indexOf(obj[key]) === -1*/) 
+            {
+                this.observeTree(obj[key], route);
             }
         }, this);
     };
@@ -60,7 +65,7 @@
         if (!obj || typeof(obj) !== 'object') {
             return;
         }
-        
+
         this.unobserve(obj);
 
         Object.keys(obj).forEach(function (key) {

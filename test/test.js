@@ -77,9 +77,16 @@ suite('Test LazyJsonUndoRedo', function () {
             assert.deepEqual(o, {});
         });
 
-        test('test4', function () {
+        test('test4 (null value)', function () {
             
             var o = {a: null, b: undefined, d: Infinity};
+            var ljur = new LazyJsonUndoRedo(o);
+        });
+
+        test('test5 (cyclic ref)', function () {
+            
+            var o = {};
+            o.a = o;
             var ljur = new LazyJsonUndoRedo(o);
         });
     });
