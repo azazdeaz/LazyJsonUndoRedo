@@ -64,6 +64,20 @@ Force save
  console.log(o); // {i: {}}
 
 
+Use whitelists
+ //if you want to specify witch properties should be listened on an object, 
+ // you can use whitelists: 
+ o = {};
+ ljur = new LazyJsonUndoRedo();
+ ljur.setWhiteList(o, ['a', 'b']);
+ ljur.observeTree(o);//you have to set the whitelist before start to observe the object
+ o.a = 7; //will be undoable
+ o.c = 8; //won't be undoable, because 'c' is not on the whitelist
+ 
+ ljur.removeWhiteList(o);//whitelists are removable
+ 
+
+
 Listen to more objects
  ljur.observeTree(o2);
 
