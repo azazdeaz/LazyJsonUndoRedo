@@ -77,13 +77,13 @@ suite('Test LazyJsonUndoRedo', function () {
             assert.deepEqual(o, {});
         });
 
-        test('test4 (null value)', function () {
+        test('null value', function () {
             
             var o = {a: null, b: undefined, d: Infinity};
             var ljur = new LazyJsonUndoRedo(o);
         });
 
-        test('test5 (cyclic ref)', function () {
+        test('cyclic ref', function () {
             
             var o = {};
             o.a = o;
@@ -275,6 +275,30 @@ suite('Test LazyJsonUndoRedo', function () {
             assert.deepEqual(o0, {a: 0, c: 2});
             assert.deepEqual(o1, {b: 1, d: 3});
 
+        });
+
+        test('using whitelist', function () {
+            
+            var o = {a: 3, d: {e: 7}};
+
+            var ljur = new LazyJsonUndoRedo();
+            ljur.setWhitelist(o, ['a', 'b']);
+            ljur.observeTree(o);
+
+
+            o.a = 1; if(ljur.usingShim) ljur.rec();
+            o.b = 3; if(ljur.usingShim) ljur.rec();
+            o.c = 7; if(ljur.usingShim) ljur.rec();
+            o.d.e = 12; if(ljur.usingShim) ljur.rec();
+            assert.deepEqual(o, {a: 1, b: 3, c: 7, d: {e: 12}});
+            ljur.undo();
+            assert.deepEqual(o, {a: 1, c: 7, d: {e: 12}});
+            ljur.undo();
+            assert.deepEqual(o, {a: 3, c: 7, d: {e: 12}});
+            // ljur.redo();
+            // assert.deepEqual(o, {a: 1, c: 7, d: {e: 12}});
+            // ljur.redo();
+            // assert.deepEqual(o, {a: 1, b: 3, c: 7, d: {e: 12}});
         });
     });
 });

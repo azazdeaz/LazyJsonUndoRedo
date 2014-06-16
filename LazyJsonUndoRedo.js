@@ -30,6 +30,7 @@
         }
 
         this._history = [];
+        this._whitelists = [];
         this._pointer = -1;
         this._recChanges = this._recChanges.bind(this);
 
@@ -37,6 +38,12 @@
     }
 
     var p = LazyJsonUndoRedo.prototype;
+
+
+
+
+
+
 
     p.observeTree = function (obj, route) {
 
@@ -51,7 +58,8 @@
         Object.keys(obj).forEach(function (key) {
 
             if (typeof(obj[key]) === 'object' &&
-                route.indexOf(obj[key]) === -1) 
+                route.indexOf(obj[key]) === -1 && //avoid circular reference
+                this._isListenable(obj, key))
             {
                 this.observeTree(obj[key], route);
             }
@@ -78,9 +86,12 @@
         }, this);
     };
 
-    p._recChanges = function(changes) {
 
-        var that = this;
+
+
+
+
+    p._recChanges = function(changes) {
 
         if (this._pointer < this._history.length - 1) {
 
@@ -91,9 +102,12 @@
 
             if (typeof(change) === 'number') {//it's a flag
 
-                that._history.push(change);
+                this._history.push(change);
+
+                ++this._pointer;
             }
-            else {
+            else if (this._isListenable(change.object, change.name)) {
+
                 var rec = Object.create(null);
 
                 Object.keys(change).forEach(function (key) {
@@ -101,13 +115,13 @@
                     rec[key] = change[key];
                 });
 
-                that._history.push(rec);
+                this._history.push(rec);
 
-                that.observeTree(change.object);
+                this.observeTree(change.object);
+
+                ++this._pointer;
             }
-        });
-
-        this._pointer += changes.length;
+        }, this);
     };
 
     p.undo = function() {
@@ -220,6 +234,8 @@
 
 
 
+
+
     p.startFlag = function () {
 
         this.rec();
@@ -249,6 +265,55 @@
     };
 
 
+
+
+
+
+    p.setWhitelist = function (obj, list) {
+
+        this.removeWhitelist(obj);
+
+        this._whitelists.push({obj: obj, list: list});
+    }
+
+    p.getWhitelist = function (obj) {
+
+        for (var i = 0, l = this._whitelists.length; i < l; ++i) {
+
+            if (this._whitelists[i].obj === obj) {
+
+                return this._whitelists[i];
+            }
+        }
+    }
+
+    p.removeWhitelist = function (obj) {
+
+        for (var i = 0; i < this._whitelists.length; ++i) {
+
+            if (this._whitelists[i].obj === obj) {
+
+                this._whitelists.splice(i--, 1);
+            }
+        }
+    }
+
+    p._isListenable = function (obj, paramName) {
+
+        var wl = this.getWhitelist(obj);
+
+        if (wl && wl.list.indexOf(paramName) === -1) {
+
+            return false;
+        }
+
+        return true;
+    }
+
+
+
+
+
     p.observe = function (obj) {
 
         var observeFn = obj.constructor && obj.constructor.observe || Array.isArray(obj) ? Array.observe : Object.observe;
@@ -275,6 +340,12 @@
 
         return false;
     };
+
+
+
+
+
+
 
 
 //--------------------------------------------------------------------------------------------------
