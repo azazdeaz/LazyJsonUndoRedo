@@ -1,6 +1,6 @@
 {
   "name": "LazyJsonUndoRedo",
-  "version": "0.9.3",
+  "version": "0.9.4",
   "description": "Makes a history with automatic undo/redo functionality for nested javascript objects, using ES6 Object.observe().",
   "main": "LazyJsonUndoRedo.js",
   "scripts": {

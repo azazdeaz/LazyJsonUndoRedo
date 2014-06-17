@@ -137,17 +137,16 @@
 
         if (typeof(rec) === 'number') {
 
-            for (var startFlagIdx = this._pointer; startFlagIdx >= 0; --startFlagIdx) {
+            var startFlagIdx = this._history.indexOf(rec - 1);
 
-                if (this._history[startFlagIdx] === rec - 1) {
+            if (startFlagIdx !== -1) {
 
-                    do {
-                        this._reverseRecord(this._history[this._pointer--]);
-                    } 
-                    while (this._pointer >= startFlagIdx);
+                while (this._pointer !== startFlagIdx) {
 
-                    break;
+                    this._reverseRecord(this._history[this._pointer--]);
                 }
+
+                this._pointer--;
             }
         }
         else {
@@ -168,16 +167,13 @@
         
         if (typeof(rec) === 'number') {
 
-            for (var endFlagIdx = this._pointer; endFlagIdx < this._history.length; ++endFlagIdx) {
+            var endFlagIdx = this._history.indexOf(rec + 1);
 
-                if (this._history[endFlagIdx] === rec + 1) {
+            if (endFlagIdx !== -1) {
 
-                    do {
-                        this._reverseRecord(this._history[this._pointer++]);
-                    } 
-                    while (this._pointer <= endFlagIdx);
+                while (++this._pointer !== endFlagIdx) {
 
-                    break;
+                    this._reverseRecord(this._history[this._pointer])
                 }
             }
         }

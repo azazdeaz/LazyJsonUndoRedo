@@ -235,6 +235,26 @@ suite('Test LazyJsonUndoRedo', function () {
             ljur.undo();
             assert.deepEqual(a, [1, 0, 2]);
         });
+
+        test('test3', function () {
+            
+            var o = {};
+            var ljur = new LazyJsonUndoRedo(o);
+            var endFlag = ljur.startFlag();
+            o.a = 0;
+            o.b = 1;
+            ljur.endFlag(endFlag);
+            o.c = 2;
+            assert.deepEqual(o, {a:0, b:1, c: 2});
+            ljur.undo();
+            assert.deepEqual(o, {a:0, b:1});
+            ljur.undo();
+            assert.deepEqual(o, {});
+            ljur.redo();
+            assert.deepEqual(o, {a:0, b:1});
+            ljur.redo();
+            assert.deepEqual(o, {a:0, b:1, c: 2});
+        });
     });
 
     suite('others', function () {
