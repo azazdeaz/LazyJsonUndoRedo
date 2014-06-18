@@ -4,6 +4,7 @@
   "description": "Makes a history with automatic undo/redo functionality for nested javascript objects, using ES6 Object.observe().",
   "main": "LazyJsonUndoRedo.js",
   "scripts": {
+    "min": "uglifyjs LazyJsonUndoRedo.js -o LazyJsonUndoRedo.min.js --source-map LazyJsonUndoRedo.min.js.map --screw-ie8 -c -m"
   },
   "repository": {
     "type": "git",
@@ -25,6 +26,8 @@
     "url": "https://github.com/azazdeaz/LazyJsonUndoRedo/issues"
   },
   "homepage": "https://github.com/azazdeaz/LazyJsonUndoRedo",
-  "devDependencies": {
+  "devDependencies": {},
+  "dependencies": {
+    "uglify-js": "^2.4.14"
   }
 }
