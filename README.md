@@ -1,12 +1,14 @@
 LazyJsonUndoRedo
 ================
 
-Makes a history with automatic undo/redo functionality for nested javascript objects, using ES6 Object.observe().
+A 'drop in' history handler with automatic undo/redo functionality for nested javascript objects, using ES6 Object.observe() or Polymer shim.
 
-ES6 Object.observe() is only supported inNative support in Chrome 36+ and Nodejs 11.13+ yet, but LJUR is also usable with [polymer](https://github.com/polymer/polymer)([observe-js](https://github.com/Polymer/observe-js))
+ES6 Object.observe() is only supported in Chrome 36+ and Nodejs 11.13+ yet, but LJUR is also usable with [polymer](https://github.com/polymer/polymer)([observe-js](https://github.com/Polymer/observe-js))
 
 ####Demo
 [edit json](http://codepen.io/azazdeaz/pen/ucqAm?editors=001)
+
+[edit maze](http://codepen.io/azazdeaz/pen/AEgGe?editors=001)
 
 ####Unit test
 [native](http://azazdeaz.github.io/LazyJsonUndoRedo/test/test-native.html)
@@ -80,9 +82,11 @@ Use whitelists
 
 Listen to more objects
  ljur.observeTree(o2);
+ ljur.observeTree(o3);
 
 
 Check support
- LazyJsonUndoRedo.checkSupport();//currently just in Chrome 36 and Nodejs 11.13
+ LazyJsonUndoRedo.checkSupport();//true is native Object.observe() or Polymer is present
+ ljur.usingShim;//true if it's usin Polymer shim
 
 ```
