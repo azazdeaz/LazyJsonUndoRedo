@@ -1,5 +1,6 @@
 'use strict';
-var assert = chai.assert;
+
+var assert = (module !== 'undefined' && module.exports ? require('chai') : chai).assert;
 
 suite('Test LazyJsonUndoRedo', function () {
     setup(function(){
