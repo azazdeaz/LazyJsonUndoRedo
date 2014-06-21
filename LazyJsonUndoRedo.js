@@ -1,7 +1,7 @@
 (function (root, factory) {
     if (typeof define === 'function' && define.amd) {
         // AMD. Register as an anonymous module.
-        root.LazyJsonUndoRedo = factory()
+        root.LazyJsonUndoRedo = factory();
 
         define(function () {
             return root.LazyJsonUndoRedo;
@@ -328,8 +328,8 @@
             
             return 'native';
         }
-        else if (window.Platform && typeof(Platform.performMicrotaskCheckpoint) === 'function' &&
-            typeof(window.ObjectObserver) === 'function' && typeof(window.ArrayObserver) === 'function')
+        else if (typeof(exports) !== 'object' && Platform && typeof(Platform.performMicrotaskCheckpoint) === 'function' &&
+            typeof(ObjectObserver) === 'function' && typeof(ArrayObserver) === 'function')
         {
             return 'polymer';
         }

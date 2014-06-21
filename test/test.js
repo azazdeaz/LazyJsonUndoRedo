@@ -1,6 +1,7 @@
 'use strict';
 
-var assert = (module !== 'undefined' && module.exports ? require('chai') : chai).assert;
+var assert = (typeof exports === 'object' ? require('chai') : chai).assert;
+var LazyJsonUndoRedo = (typeof exports === 'object' ? require('../LazyJsonUndoRedo') : LazyJsonUndoRedo);
 
 suite('Test LazyJsonUndoRedo', function () {
     setup(function(){
