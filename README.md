@@ -1,3 +1,5 @@
+[![Build Status](https://travis-ci.org/azazdeaz/LazyJsonUndoRedo.svg?branch=master)](https://travis-ci.org/azazdeaz/LazyJsonUndoRedo)
+
 LazyJsonUndoRedo
 ================
 
