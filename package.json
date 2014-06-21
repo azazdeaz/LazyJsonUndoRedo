@@ -5,7 +5,7 @@
   "main": "LazyJsonUndoRedo.js",
   "scripts": {
     "min": "uglifyjs LazyJsonUndoRedo.js -o LazyJsonUndoRedo.min.js --source-map LazyJsonUndoRedo.min.js.map --screw-ie8 -c -m",
-    "test": "mocha --harmony --ui tdd"
+    "test": "mocha --harmony --ui tdd --reporter spec"
   },
   "repository": {
     "type": "git",
