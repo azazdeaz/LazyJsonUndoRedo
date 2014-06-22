@@ -1,6 +1,6 @@
 {
   "name": "lazy-json-undo-redo",
-  "version": "0.9.4",
+  "version": "0.9.5",
   "description": "A 'drop in' history handler with automatic undo/redo functionality for nested javascript objects, using ES6 Object.observe() or Polymer shim.",
   "main": "LazyJsonUndoRedo.js",
   "scripts": {
@@ -29,9 +29,7 @@
   "homepage": "https://github.com/azazdeaz/LazyJsonUndoRedo",
   "devDependencies": {
     "mocha": "^1.20.1",
-    "chai": "^1.9.1"
-  },
-  "dependencies": {
+    "chai": "^1.9.1",
     "uglify-js": "^2.4.14"
   }
 }

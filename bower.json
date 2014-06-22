@@ -1,7 +1,7 @@
 {
   "name": "LazyJsonUndoRedo",
   "main": "LazyJsonUndoRedo.js",
-  "version": "0.9.4",
+  "version": "0.9.5",
   "homepage": "https://github.com/azazdeaz/LazyJsonUndoRedo",
   "authors": [
     "polgar andras <azazdeaz@gmail.com>"
