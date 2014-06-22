@@ -49,7 +49,7 @@ Flagging
  
  //or wrap a function between flags:
  var changerFn = ljur.wrap(function () {/*do changes on o*/});
- changerFn();//all changes are reversible with one redo() call
+ changerFn();//all changes are reversible with one undo() call
 
 
 Force save
