@@ -1,6 +1,6 @@
-[![Build Status](https://travis-ci.org/azazdeaz/LazyJsonUndoRedo.svg?branch=master)](https://travis-ci.org/azazdeaz/LazyJsonUndoRedo)
 
-LazyJsonUndoRedo
+
+LazyJsonUndoRedo [![Build Status](https://travis-ci.org/azazdeaz/LazyJsonUndoRedo.svg?branch=master)](https://travis-ci.org/azazdeaz/LazyJsonUndoRedo)
 ================
 
 A 'drop in' history handler with automatic undo/redo functionality for nested javascript objects, using ES6 Object.observe() or Polymer shim.
