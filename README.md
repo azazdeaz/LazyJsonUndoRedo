@@ -12,6 +12,12 @@ ES6 Object.observe() is only supported in Chrome 36+ and Nodejs 11.13+ yet, but 
 
 [edit maze](http://codepen.io/azazdeaz/pen/AEgGe?editors=001)
 
+####Install
+```
+bower install --save LazyJsonUndoRedo
+npm install --save lazy-json-undo-redo
+```
+
 ####Unit test
 [native](http://azazdeaz.github.io/LazyJsonUndoRedo/test/test-native.html)
 
@@ -35,7 +41,8 @@ Init
 
 Flagging
  o = {}, ljur = new LazyJsonUndoRedo(o);
- //the changes between the start- end endFlag calls will be treated as one step in the history  
+ //the changes between the start- end endFlag calls will be treated as one step 
+ //in the history  
  var endFlagId = ljur.startFlag();
  o.c = {}
  o.c.b = 1
