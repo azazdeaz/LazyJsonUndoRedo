@@ -31,6 +31,7 @@
 
         this._history = [];
         this._whitelists = [];
+        this._blacklists = [];
         this._pointer = -1;
         this._recChanges = this._recChanges.bind(this);
 
@@ -87,7 +88,32 @@
     };
 
 
+    p.observe = function (obj) {
 
+        var observeFn = obj.constructor && obj.constructor.observe || Array.isArray(obj) ? Array.observe : Object.observe;
+        observeFn(obj, this._recChanges);
+    };
+
+    p.unobserve = function (obj) {
+
+        var unobserveFn = obj.constructor && obj.constructor.unobserve || Array.isArray(obj) ? Array.unobserve : Object.unobserve;
+        unobserveFn(obj, this._recChanges);
+    };
+
+    LazyJsonUndoRedo.checkSupport = function () {
+
+        if (typeof(Object.observe) === 'function' && typeof(Array.observe) === 'function') {
+            
+            return 'native';
+        }
+        else if (typeof(exports) !== 'object' && Platform && typeof(Platform.performMicrotaskCheckpoint) === 'function' &&
+            typeof(ObjectObserver) === 'function' && typeof(ArrayObserver) === 'function')
+        {
+            return 'polymer';
+        }
+
+        return false;
+    };
 
 
 
@@ -264,6 +290,10 @@
 
 
 
+//--------------------------------------------------------------------------------------------------
+//  White- and blacklisting
+//--------------------------------------------------------------------------------------------------
+
 
     p.setWhitelist = function (obj, list) {
 
@@ -294,11 +324,46 @@
         }
     }
 
+    p.setBlacklist = function (obj, list) {
+
+        this.removeBlacklist(obj);
+
+        this._blacklists.push({obj: obj, list: list});
+    }
+
+    p.getBlacklist = function (obj) {
+
+        for (var i = 0, l = this._blacklists.length; i < l; ++i) {
+
+            if (this._blacklists[i].obj === obj) {
+
+                return this._blacklists[i];
+            }
+        }
+    }
+
+    p.removeBlacklist = function (obj) {
+
+        for (var i = 0; i < this._blacklists.length; ++i) {
+
+            if (this._blacklists[i].obj === obj) {
+
+                this._blacklists.splice(i--, 1);
+            }
+        }
+    }
+
     p._isListenable = function (obj, paramName) {
 
-        var wl = this.getWhitelist(obj);
+        var wl = this.getWhitelist(obj),
+            bl = this.getBlacklist(obj);
 
         if (wl && wl.list.indexOf(paramName) === -1) {
+
+            return false;
+        }
+        
+        if (bl && bl.list.indexOf(paramName) !== -1) {
 
             return false;
         }
@@ -306,36 +371,6 @@
         return true;
     }
 
-
-
-
-
-    p.observe = function (obj) {
-
-        var observeFn = obj.constructor && obj.constructor.observe || Array.isArray(obj) ? Array.observe : Object.observe;
-        observeFn(obj, this._recChanges);
-    };
-
-    p.unobserve = function (obj) {
-
-        var unobserveFn = obj.constructor && obj.constructor.unobserve || Array.isArray(obj) ? Array.unobserve : Object.unobserve;
-        unobserveFn(obj, this._recChanges);
-    };
-
-    LazyJsonUndoRedo.checkSupport = function () {
-
-        if (typeof(Object.observe) === 'function' && typeof(Array.observe) === 'function') {
-            
-            return 'native';
-        }
-        else if (typeof(exports) !== 'object' && Platform && typeof(Platform.performMicrotaskCheckpoint) === 'function' &&
-            typeof(ObjectObserver) === 'function' && typeof(ArrayObserver) === 'function')
-        {
-            return 'polymer';
-        }
-
-        return false;
-    };
 
 
 

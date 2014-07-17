@@ -317,10 +317,37 @@ suite('Test LazyJsonUndoRedo', function () {
             assert.deepEqual(o, {a: 1, c: 7, d: {e: 12}});
             ljur.undo();
             assert.deepEqual(o, {a: 3, c: 7, d: {e: 12}});
-            // ljur.redo();
-            // assert.deepEqual(o, {a: 1, c: 7, d: {e: 12}});
-            // ljur.redo();
-            // assert.deepEqual(o, {a: 1, b: 3, c: 7, d: {e: 12}});
+            ljur.redo();
+            assert.deepEqual(o, {a: 1, c: 7, d: {e: 12}});
+            ljur.redo();
+            assert.deepEqual(o, {a: 1, b: 3, c: 7, d: {e: 12}});
+        });
+
+
+        test('using blacklist', function () {
+            
+            var o = {a: 3, d: {e: 7}};
+
+            var ljur = new LazyJsonUndoRedo();
+            ljur.setBlacklist(o, ['a', 'b']);
+            ljur.observeTree(o);
+
+
+            o.a = 1; if(ljur.usingShim) ljur.rec();
+            o.b = 3; if(ljur.usingShim) ljur.rec();
+            o.c = 7; if(ljur.usingShim) ljur.rec();
+            o.d.e = 12; if(ljur.usingShim) ljur.rec();
+            assert.deepEqual(o, {a: 1, b: 3, c: 7, d: {e: 12}});
+            ljur.undo();
+            assert.deepEqual(o, {a: 1, b: 3, c: 7, d: {e: 7}});
+            ljur.undo();
+            assert.deepEqual(o, {a: 1, b: 3, d: {e: 7}});
+            ljur.undo();
+            assert.deepEqual(o, {a: 1, b: 3, d: {e: 7}});
+            ljur.redo();
+            assert.deepEqual(o, {a: 1, b: 3, c: 7, d: {e: 7}});
+            ljur.redo();
+            assert.deepEqual(o, {a: 1, b: 3, c: 7, d: {e: 12}});
         });
     });
 });
