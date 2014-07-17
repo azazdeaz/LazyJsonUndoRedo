@@ -86,7 +86,11 @@ Use whitelists
  o.c = 8; //won't be undoable, because 'c' is not on the whitelist
  
  ljur.removeWhiteList(o);//whitelists are removable
- 
+
+
+Use blacklists
+//works the same as whitelists
+
 
 
 Listen to more objects
