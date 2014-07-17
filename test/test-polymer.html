@@ -6,6 +6,11 @@
 </head>
 <body>
   <div id="mocha"></div>
+  <script>
+    Object.observe = undefined;
+    Object.unobserve = undefined;
+    Object.deliverChangeRecords = undefined;
+  </script>
   <script src="../LazyJsonUndoRedo.js"></script>
   <script src="../bower_components/platform/platform.js"></script>
   <script src="../bower_components/polymer/polymer.js"></script>
@@ -14,10 +19,6 @@
   <script>mocha.setup('tdd')</script>
   <script src="test.js"></script>
   <script>
-    Object.observe = false;
-    Object.unobserve = false;
-    Object.deliverChangeRecords = false;
-
     mocha.checkLeaks();
     mocha.run();
   </script>

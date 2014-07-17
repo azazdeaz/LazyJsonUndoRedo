@@ -349,6 +349,72 @@ suite('Test LazyJsonUndoRedo', function () {
             ljur.redo();
             assert.deepEqual(o, {a: 1, b: 3, c: 7, d: {e: 12}});
         });
+
+
+        test('using global whitelist', function () {
+            
+            var o = {a: 3, b: 4, d: {a: 7}};
+
+            var ljur = new LazyJsonUndoRedo();
+            ljur.addToGlobalWhitelist('a', 'b', 'c', 'd');
+            ljur.observeTree(o);
+
+            assert.deepEqual(ljur._globalWhitelist, ['a', 'b', 'c', 'd']);
+            ljur.removeFromGlobalWhitelist('c');
+            assert.deepEqual(ljur._globalWhitelist, ['a', 'b', 'd']);
+
+            o.a = 1; if(ljur.usingShim) ljur.rec();
+            o.b = 3; if(ljur.usingShim) ljur.rec();
+            o.d.c = 5; if(ljur.usingShim) ljur.rec();
+            o.d.a = 12; if(ljur.usingShim) ljur.rec();
+            assert.deepEqual(o, {a: 1, b: 3, d: {a: 12, c: 5}});
+            ljur.undo();
+            assert.deepEqual(o, {a: 1, b: 3, d: {a: 7, c: 5}});
+            ljur.undo();
+            assert.deepEqual(o, {a: 1, b: 4, d: {a: 7, c: 5}});
+            ljur.undo();
+            assert.deepEqual(o, {a: 3, b: 4, d: {a: 7, c: 5}});
+            ljur.undo();
+            assert.deepEqual(o, {a: 3, b: 4, d: {a: 7, c: 5}});
+            ljur.redo();
+            assert.deepEqual(o, {a: 1, b: 4, d: {a: 7, c: 5}});
+            ljur.redo();
+            assert.deepEqual(o, {a: 1, b: 3, d: {a: 7, c: 5}});
+            ljur.redo();
+            assert.deepEqual(o, {a: 1, b: 3, d: {a: 12, c: 5}});
+            ljur.redo();
+            assert.deepEqual(o, {a: 1, b: 3, d: {a: 12, c: 5}});
+        });
+
+
+        test('using global blacklist', function () {
+            
+            var o = {a: 3, b: 4, d: {a: 7}};
+
+            var ljur = new LazyJsonUndoRedo();
+            ljur.addToGlobalBlacklist('a', 'b', 'c');
+            ljur.observeTree(o);
+
+            assert.deepEqual(ljur._globalBlacklist, ['a', 'b', 'c']);
+            ljur.removeFromGlobalBlacklist('b', 'c');
+            assert.deepEqual(ljur._globalBlacklist, ['a']);
+
+            o.a = 1; if(ljur.usingShim) ljur.rec();
+            o.b = 3; if(ljur.usingShim) ljur.rec();
+            o.d.c = 5; if(ljur.usingShim) ljur.rec();
+            o.d.a = 12; if(ljur.usingShim) ljur.rec();
+            assert.deepEqual(o, {a: 1, b: 3, d: {a: 12, c: 5}});
+            ljur.undo();
+            assert.deepEqual(o, {a: 1, b: 3, d: {a: 12}});
+            ljur.undo();
+            assert.deepEqual(o, {a: 1, b: 4, d: {a: 12}});
+            ljur.undo();
+            assert.deepEqual(o, {a: 1, b: 4, d: {a: 12}});
+            ljur.redo();
+            assert.deepEqual(o, {a: 1, b: 3, d: {a: 12}});
+            ljur.redo();
+            assert.deepEqual(o, {a: 1, b: 3, d: {a: 12, c: 5}});
+        });
     });
 });
 

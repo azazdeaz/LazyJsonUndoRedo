@@ -32,6 +32,8 @@
         this._history = [];
         this._whitelists = [];
         this._blacklists = [];
+        this._globalWhitelist = [];
+        this._globalBlacklist = [];
         this._pointer = -1;
         this._recChanges = this._recChanges.bind(this);
 
@@ -199,7 +201,7 @@
 
                 while (++this._pointer !== endFlagIdx) {
 
-                    this._reverseRecord(this._history[this._pointer])
+                    this._reverseRecord(this._history[this._pointer]);
                 }
             }
         }
@@ -300,7 +302,7 @@
         this.removeWhitelist(obj);
 
         this._whitelists.push({obj: obj, list: list});
-    }
+    };
 
     p.getWhitelist = function (obj) {
 
@@ -311,7 +313,7 @@
                 return this._whitelists[i];
             }
         }
-    }
+    };
 
     p.removeWhitelist = function (obj) {
 
@@ -322,14 +324,14 @@
                 this._whitelists.splice(i--, 1);
             }
         }
-    }
+    };
 
     p.setBlacklist = function (obj, list) {
 
         this.removeBlacklist(obj);
 
         this._blacklists.push({obj: obj, list: list});
-    }
+    };
 
     p.getBlacklist = function (obj) {
 
@@ -340,7 +342,7 @@
                 return this._blacklists[i];
             }
         }
-    }
+    };
 
     p.removeBlacklist = function (obj) {
 
@@ -351,7 +353,47 @@
                 this._blacklists.splice(i--, 1);
             }
         }
-    }
+    };
+
+    p.addToGlobalWhitelist = function (/*...keys*/) {
+
+        var args = arguments;
+
+        for (var i = 0, l = args.length; i < l; ++i) {
+
+            this._globalWhitelist.push(args[i]);
+        }
+    };
+
+    p.removeFromGlobalWhitelist = function (/*...keys*/) {
+
+        var args = arguments;
+
+        this._globalWhitelist = this._globalWhitelist.filter(function (paramName) {
+
+            return Array.prototype.indexOf.call(args, paramName) === -1;
+        });
+    };
+
+    p.addToGlobalBlacklist = function (/*...keys*/) {
+
+        var args = arguments;
+
+        for (var i = 0, l = args.length; i < l; ++i) {
+
+            this._globalBlacklist.push(args[i]);
+        }
+    };
+
+    p.removeFromGlobalBlacklist = function (/*...keys*/) {
+
+        var args = arguments;
+
+        this._globalBlacklist = this._globalBlacklist.filter(function (paramName) {
+
+            return Array.prototype.indexOf.call(args, paramName) === -1;
+        });
+    };
 
     p._isListenable = function (obj, paramName) {
 
@@ -368,8 +410,18 @@
             return false;
         }
 
+        if (this._globalWhitelist.length !== 0 && this._globalWhitelist.indexOf(paramName) === -1) {
+
+            return false;
+        }
+
+        if (this._globalBlacklist.indexOf(paramName) !== -1) {
+
+            return false;
+        }
+
         return true;
-    }
+    };
 
 
 
