@@ -5,6 +5,8 @@ LazyJsonUndoRedo [![Build Status](https://travis-ci.org/azazdeaz/LazyJsonUndoRed
 
 A 'drop in' history handler with automatic undo/redo functionality for nested javascript objects, using ES6 Object.observe() or Polymer shim.
 
+Best for small editor tools.
+
 ES6 Object.observe() is only supported in Chrome 36+ and Nodejs 11.13+ yet, but LJUR is also usable with [polymer](https://github.com/polymer/polymer)([observe-js](https://github.com/Polymer/observe-js))
 
 ####Demo
@@ -85,11 +87,20 @@ Use whitelists
  o.a = 7; //will be undoable
  o.c = 8; //won't be undoable, because 'c' is not on the whitelist
  
+ ljur.getWhitelist(o); //['a', 'b']
  ljur.removeWhiteList(o);//whitelists are removable
 
 
 Use blacklists
-//works the same as whitelists
+ //works the same as whitelists
+ ljur.setBlacklist(object, blacklistedKeys);
+ ljur.removeBlacklist(object);
+
+
+Use global black- and whitelist
+ //you can use this two list for all of the objects added to ljur
+ ljur.addToGlobalWhitelist('a', 'b', 'x', 'd', 'e');
+ ljur.removeFromGlobalBlacklist('e', 'x', 'y');
 
 
 
