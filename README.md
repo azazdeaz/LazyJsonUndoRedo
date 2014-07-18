@@ -20,7 +20,7 @@ bower install --save LazyJsonUndoRedo
 npm install --save lazy-json-undo-redo
 ```
 
-####Unit test
+####Unit tests
 [native](http://azazdeaz.github.io/LazyJsonUndoRedo/test/test-native.html)
 
 [with polymer shim](http://azazdeaz.github.io/LazyJsonUndoRedo/test/test-polymer.html)
@@ -66,14 +66,14 @@ Force save
  o = {}, ljur = new LazyJsonUndoRedo(o);
  o.g = {};
  o.g.h = 1;
- ljur.redo();
+ ljur.undo();
  console.log(o); //{}
 
- //to avoid this, you can force the history save with ljur.deliverChangeRecords()
+ //to avoid this, you can force the history save with ljur.rec()
  o.i = {};
- ljur.deliverChangeRecords();
+ ljur.rec();
  o.i.j = 2;
- ljur.redo();
+ ljur.undo();
  console.log(o); // {i: {}}
 
 
@@ -86,6 +86,8 @@ Use whitelists
  ljur.observeTree(o);//you have to set the whitelist before start to observe the object
  o.a = 7; //will be undoable
  o.c = 8; //won't be undoable, because 'c' is not on the whitelist
+ ljur.undo();
+ console.log(o); // {c: 8}
  
  ljur.getWhitelist(o); //['a', 'b']
  ljur.removeWhiteList(o);//whitelists are removable
@@ -100,7 +102,9 @@ Use blacklists
 Use global black- and whitelist
  //you can use this two list for all of the objects added to ljur
  ljur.addToGlobalWhitelist('a', 'b', 'x', 'd', 'e');
- ljur.removeFromGlobalBlacklist('e', 'x', 'y');
+ ljur.removeFromGlobalWhitelist('e', 'x');
+ ljur.addToGlobalBlacklist('a', 'b', 'x', 'd', 'e');
+ ljur.removeFromGlobalBlacklist('e', 'x');
 
 
 
