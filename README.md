@@ -115,6 +115,6 @@ Listen to more objects
 
 Check support
  LazyJsonUndoRedo.checkSupport();//true is native Object.observe() or Polymer is present
- ljur.usingShim;//true if it's usin Polymer shim
+ ljur.usingShim;//true if the instance is using Polymer shim
 
 ```
