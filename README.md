@@ -3,6 +3,8 @@
 LazyJsonUndoRedo [![Build Status](https://travis-ci.org/azazdeaz/LazyJsonUndoRedo.svg?branch=master)](https://travis-ci.org/azazdeaz/LazyJsonUndoRedo)
 ================
 
+[![Gitter](https://badges.gitter.im/Join%20Chat.svg)](https://gitter.im/azazdeaz/LazyJsonUndoRedo?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
+
 A 'drop in' history handler with automatic undo/redo functionality for nested javascript objects, using ES6 Object.observe() or Polymer shim.
 
 Best for small editor tools.
