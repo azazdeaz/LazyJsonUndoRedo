@@ -9,7 +9,7 @@ A 'drop in' history handler with automatic undo/redo functionality for nested ja
 
 Best for small editor tools.
 
-ES6 Object.observe() is only supported in Chrome 36+ and Nodejs 11.13+ yet, but LJUR is also usable with [polymer](https://github.com/polymer/polymer)([observe-js](https://github.com/Polymer/observe-js))
+ES6 Object.observe() is only supported in Chrome 36+, Opera 23+, io.js and Nodejs 11.13+ yet, but LJUR is also usable with [polymer](https://github.com/polymer/polymer)([observe-js](https://github.com/Polymer/observe-js))
 
 ####Demo
 [edit json](http://codepen.io/azazdeaz/pen/ucqAm?editors=001)
