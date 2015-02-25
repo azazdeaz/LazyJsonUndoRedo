@@ -5,11 +5,11 @@ LazyJsonUndoRedo [![Build Status](https://travis-ci.org/azazdeaz/LazyJsonUndoRed
 
 [![Gitter](https://badges.gitter.im/Join%20Chat.svg)](https://gitter.im/azazdeaz/LazyJsonUndoRedo?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
 
-A 'drop in' history handler with automatic undo/redo functionality for nested javascript objects, using ES6 Object.observe() or Polymer shim.
+A 'drop in' history handler with automatic undo/redo functionality for nested javascript objects, using Object.observe() or Polymer shim.
 
 Best for small editor tools.
 
-ES6 Object.observe() is only supported in Chrome 36+, Opera 23+, io.js and Nodejs 11.13+ yet, but LJUR is also usable with [polymer](https://github.com/polymer/polymer)([observe-js](https://github.com/Polymer/observe-js))
+Object.observe() is only supported in Chrome 36+, Opera 23+, io.js and Nodejs 11.13+ yet, but LJUR is also usable with [polymer](https://github.com/polymer/polymer)([observe-js](https://github.com/Polymer/observe-js))
 
 ####Demo
 [edit json](http://codepen.io/azazdeaz/pen/ucqAm?editors=001)
