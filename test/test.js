@@ -259,6 +259,301 @@ suite('Test LazyJsonUndoRedo', function () {
         });
     });
 
+    suite('about merge', function() {
+
+        test('test0', function() {
+            var o = {x: 0, y: 0, z:0, inner: {x: 0, y: 0, z: 0}};
+            var ljur = new LazyJsonUndoRedo(o);
+            ljur._debug = true;
+            ljur.setMergeWhitelist(o, ['x', 'y', 'a', 'b']);
+            ljur.setMergegroups(o, [['a', 'b']]);
+            ljur.addToGlobalMergegroups(['x', 'a']);
+            ljur.addToGlobalMergeWhitelist('z');
+            o.x = 1;
+            ljur.rec();
+            o.x = 2;
+            ljur.rec();
+            o.x = 3;
+            assert.deepEqual(o, {x:3, y:0, z:0, inner: {x: 0, y: 0, z: 0}});
+            ljur.undo();
+            assert.deepEqual(o, {x:0, y:0, z:0, inner: {x: 0, y: 0, z: 0}});
+            ljur.redo();
+            assert.deepEqual(o, {x:3, y:0, z:0, inner: {x: 0, y: 0, z: 0}});
+            ljur.undo();
+            assert.deepEqual(o, {x:0, y:0, z:0, inner: {x: 0, y: 0, z: 0}});
+            o.y = 1;
+            ljur.rec();
+            o.y = 2;
+            ljur.rec();
+            o.y = 3;
+            assert.deepEqual(o, {x:0, y:3, z:0, inner: {x: 0, y: 0, z: 0}});
+            ljur.undo();
+            assert.deepEqual(o, {x:0, y:0, z:0, inner: {x: 0, y: 0, z: 0}});
+            ljur.redo();
+            assert.deepEqual(o, {x:0, y:3, z:0, inner: {x: 0, y: 0, z: 0}});
+            ljur.undo();
+            assert.deepEqual(o, {x:0, y:0, z:0, inner: {x: 0, y: 0, z: 0}});
+            o.z = 1;
+            ljur.rec();
+            o.z = 2;
+            ljur.rec();
+            o.z = 3;
+            assert.deepEqual(o, {x:0, y:0, z:3, inner: {x: 0, y: 0, z: 0}});
+            ljur.undo();
+            assert.deepEqual(o, {x:0, y:0, z:0, inner: {x: 0, y: 0, z: 0}});
+            ljur.redo();
+            assert.deepEqual(o, {x:0, y:0, z:3, inner: {x: 0, y: 0, z: 0}});
+            ljur.undo();
+            assert.deepEqual(o, {x:0, y:0, z:0, inner: {x: 0, y: 0, z: 0}});
+
+
+            o.z = 0;
+            ljur.rec();
+            assert.deepEqual(o, {x:0, y:0, z:0, inner: {x: 0, y: 0, z: 0}});
+            o.x = 1;
+            ljur.rec();
+            o.y = 1;
+            ljur.rec();
+            o.y = 2;
+            ljur.undo();
+            assert.deepEqual(o, {x:1, y:0, z:0, inner: {x: 0, y: 0, z: 0}});
+
+            o.x = 0;
+            o.y = 0;
+            o.z = 0;
+            o.a = 0;
+            o.b = 0;
+            ljur.rec();
+            assert.deepEqual(o, {x:0, y:0, z:0, a:0, b:0, inner: {x: 0, y: 0, z: 0}});
+
+
+            o.y = 10;
+            ljur.rec();
+            o.x = 1;
+            ljur.rec();
+            o.x = 2;
+            ljur.rec();
+            o.a = 1;
+            ljur.rec();
+            o.a = 2;
+            ljur.rec();
+            assert.deepEqual(o, {x:2, y:10, z:0, a:2, b:0, inner: {x: 0, y: 0, z: 0}});
+            ljur.undo();
+            assert.deepEqual(o, {x:0, y:10, z:0, a:0, b:0, inner: {x: 0, y: 0, z: 0}});
+
+        });
+
+        test('test mergewhitelist', function(){
+            var o = {x: 0, y: 0, z:0, inner: {x: 0, y: 0, z: 0}};
+            var ljur = new LazyJsonUndoRedo(o);
+            ljur.setMergeWhitelist(o.inner, ['x', 'y']);
+
+            o.inner.x = 1;
+            ljur.rec();
+            o.inner.x = 2;
+            ljur.rec();
+            o.inner.y = 1;
+            ljur.rec();
+            o.inner.y = 2;
+            ljur.rec();
+            o.inner.z = 1;
+            ljur.rec();
+            o.inner.z = 2;
+            ljur.rec();
+            o.x = 1;
+            ljur.rec();
+            o.x = 2;
+            ljur.rec();
+
+            assert.deepEqual(o, {x: 2, y: 0, z:0, inner: {x: 2, y: 2, z: 2}});
+
+            ljur.undo();
+            assert.deepEqual(o, {x: 1, y: 0, z:0, inner: {x: 2, y: 2, z: 2}});
+
+            ljur.undo();
+            assert.deepEqual(o, {x: 0, y: 0, z:0, inner: {x: 2, y: 2, z: 2}});
+
+            ljur.undo();
+            assert.deepEqual(o, {x: 0, y: 0, z:0, inner: {x: 2, y: 2, z: 1}});
+
+            ljur.undo();
+            assert.deepEqual(o, {x: 0, y: 0, z:0, inner: {x: 2, y: 2, z: 0}});
+
+            ljur.undo();
+            assert.deepEqual(o, {x: 0, y: 0, z:0, inner: {x: 2, y: 0, z: 0}});
+
+            //---------------------
+            ljur.undo();
+            assert.deepEqual(o, {x: 0, y: 0, z:0, inner: {x: 0, y: 0, z: 0}});
+            //---------------------
+
+            ljur.redo();
+            assert.deepEqual(o, {x: 0, y: 0, z:0, inner: {x: 2, y: 0, z: 0}});
+
+            ljur.redo();
+            assert.deepEqual(o, {x: 0, y: 0, z:0, inner: {x: 2, y: 2, z: 0}});
+
+            ljur.redo();
+            assert.deepEqual(o, {x: 0, y: 0, z:0, inner: {x: 2, y: 2, z: 1}});
+
+            ljur.redo();
+            assert.deepEqual(o, {x: 0, y: 0, z:0, inner: {x: 2, y: 2, z: 2}});
+
+            ljur.redo();
+            assert.deepEqual(o, {x: 1, y: 0, z:0, inner: {x: 2, y: 2, z: 2}});
+
+        });
+
+        test('test globalmergewhitelist', function() {
+            var o = {x: 0, y: 0, z:0, inner: {x: 0, y: 0, z: 0}};
+            var ljur = new LazyJsonUndoRedo();
+            ljur.observeTree(o);
+
+            ljur.addToGlobalMergeWhitelist('x');
+            o.x = 1;
+            ljur.rec();
+            o.x = 2;
+            ljur.rec();
+            o.x = 3;
+            ljur.rec();
+            o.inner.x = 1;
+            ljur.rec();
+            o.inner.x = 2;
+            ljur.rec();
+            o.inner.x = 3;
+            ljur.rec();
+            assert.deepEqual(o, {x: 3, y: 0, z:0, inner: {x: 3, y: 0, z: 0}});
+            ljur.undo();
+            assert.deepEqual(o, {x: 3, y: 0, z:0, inner: {x: 0, y: 0, z: 0}});
+            ljur.undo();
+            assert.deepEqual(o, {x: 0, y: 0, z:0, inner: {x: 0, y: 0, z: 0}});
+
+            ljur.redo();
+            assert.deepEqual(o, {x: 3, y: 0, z:0, inner: {x: 0, y: 0, z: 0}});
+            ljur.redo();
+            assert.deepEqual(o, {x: 3, y: 0, z:0, inner: {x: 3, y: 0, z: 0}});
+
+        });
+
+        test('test mergeblacklist', function(){
+            var o = {x: 0, y: 0, z:0, inner: {x: 0, y: 0, z: 0}};
+            var ljur = new LazyJsonUndoRedo(o);
+            ljur.setMergeBlacklist(o.inner, ['x', 'y']);
+
+            o.inner.x = 1;
+            ljur.rec();
+            o.inner.x = 2;
+            ljur.rec();
+            o.inner.y = 1;
+            ljur.rec();
+            o.inner.y = 2;
+            ljur.rec();
+            o.inner.z = 1;
+            ljur.rec();
+            o.inner.z = 2;
+            ljur.rec();
+            o.x = 1;
+            ljur.rec();
+            o.x = 2;
+            ljur.rec();
+            assert.deepEqual(o, {x: 2, y: 0, z:0, inner: {x: 2, y: 2, z: 2}});
+
+            ljur.undo();
+            assert.deepEqual(o, {x: 1, y: 0, z:0, inner: {x: 2, y: 2, z: 2}});
+            ljur.undo();
+            assert.deepEqual(o, {x: 0, y: 0, z:0, inner: {x: 2, y: 2, z: 2}});
+            ljur.undo();
+            assert.deepEqual(o, {x: 0, y: 0, z:0, inner: {x: 2, y: 2, z: 0}});
+            ljur.undo();
+            assert.deepEqual(o, {x: 0, y: 0, z:0, inner: {x: 2, y: 1, z: 0}});
+            ljur.undo();
+            assert.deepEqual(o, {x: 0, y: 0, z:0, inner: {x: 2, y: 0, z: 0}});
+            ljur.undo();
+            assert.deepEqual(o, {x: 0, y: 0, z:0, inner: {x: 1, y: 0, z: 0}});
+            ljur.undo();
+            assert.deepEqual(o, {x: 0, y: 0, z:0, inner: {x: 0, y: 0, z: 0}});
+
+            ljur.redo();
+            assert.deepEqual(o, {x: 0, y: 0, z:0, inner: {x: 1, y: 0, z: 0}});
+            ljur.redo();
+            assert.deepEqual(o, {x: 0, y: 0, z:0, inner: {x: 2, y: 0, z: 0}});
+            ljur.redo();
+            assert.deepEqual(o, {x: 0, y: 0, z:0, inner: {x: 2, y: 1, z: 0}});
+            ljur.redo();
+            assert.deepEqual(o, {x: 0, y: 0, z:0, inner: {x: 2, y: 2, z: 0}});
+            ljur.redo();
+            assert.deepEqual(o, {x: 0, y: 0, z:0, inner: {x: 2, y: 2, z: 2}});
+            ljur.redo();
+            assert.deepEqual(o, {x: 1, y: 0, z:0, inner: {x: 2, y: 2, z: 2}});
+        });
+
+        test('test globalmergeblacklist', function(){
+            var o = {x: 0, y: 0, z:0, inner: {x: 0, y: 0, z: 0}};
+            var ljur = new LazyJsonUndoRedo(o);
+            ljur.addToGlobalMergeBlacklist('x', 'y');
+
+            o.inner.x = 1;
+            ljur.rec();
+            o.inner.x = 2;
+            ljur.rec();
+            o.inner.y = 1;
+            ljur.rec();
+            o.inner.y = 2;
+            ljur.rec();
+            o.inner.z = 1;
+            ljur.rec();
+            o.inner.z = 2;
+            ljur.rec();
+            o.x = 1;
+            ljur.rec();
+            o.x = 2;
+            ljur.rec();
+            o.z = 1;
+            ljur.rec();
+            o.z = 2;
+            ljur.rec();
+            assert.deepEqual(o, {x: 2, y: 0, z:2, inner: {x: 2, y: 2, z: 2}});
+
+            ljur.undo();
+            assert.deepEqual(o, {x: 2, y: 0, z:0, inner: {x: 2, y: 2, z: 2}});
+            ljur.undo();
+            assert.deepEqual(o, {x: 1, y: 0, z:0, inner: {x: 2, y: 2, z: 2}});
+            ljur.undo();
+            assert.deepEqual(o, {x: 0, y: 0, z:0, inner: {x: 2, y: 2, z: 2}});
+            ljur.undo();
+            assert.deepEqual(o, {x: 0, y: 0, z:0, inner: {x: 2, y: 2, z: 0}});
+            ljur.undo();
+            assert.deepEqual(o, {x: 0, y: 0, z:0, inner: {x: 2, y: 1, z: 0}});
+            ljur.undo();
+            assert.deepEqual(o, {x: 0, y: 0, z:0, inner: {x: 2, y: 0, z: 0}});
+            ljur.undo();
+            assert.deepEqual(o, {x: 0, y: 0, z:0, inner: {x: 1, y: 0, z: 0}});
+            ljur.undo();
+            assert.deepEqual(o, {x: 0, y: 0, z:0, inner: {x: 0, y: 0, z: 0}});
+
+
+            ljur.redo();
+            assert.deepEqual(o, {x: 0, y: 0, z:0, inner: {x: 1, y: 0, z: 0}});
+            ljur.redo();
+            assert.deepEqual(o, {x: 0, y: 0, z:0, inner: {x: 2, y: 0, z: 0}});
+            ljur.redo();
+            assert.deepEqual(o, {x: 0, y: 0, z:0, inner: {x: 2, y: 1, z: 0}});
+            ljur.redo();
+            assert.deepEqual(o, {x: 0, y: 0, z:0, inner: {x: 2, y: 2, z: 0}});
+            ljur.redo();
+            assert.deepEqual(o, {x: 0, y: 0, z:0, inner: {x: 2, y: 2, z: 2}});
+            ljur.redo();
+            assert.deepEqual(o, {x: 1, y: 0, z:0, inner: {x: 2, y: 2, z: 2}});
+            ljur.redo();
+            assert.deepEqual(o, {x: 2, y: 0, z:0, inner: {x: 2, y: 2, z: 2}});
+            ljur.redo();
+            assert.deepEqual(o, {x: 2, y: 0, z:2, inner: {x: 2, y: 2, z: 2}});
+
+
+        });
+
+    });
+
     suite('others', function () {
 
         test('listen more object', function () {

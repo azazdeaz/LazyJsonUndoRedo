@@ -29,11 +29,18 @@
             throw Error('This environment doesn\'t support the ES6 Object.observe()'); 
         }
 
+        this._debug = false;
         this._history = [];
         this._whitelists = [];
         this._blacklists = [];
+        this._mergeWhitelists = [];
+        this._mergeBlacklists = [];
+        this._mergegroups = [];
         this._globalWhitelist = [];
         this._globalBlacklist = [];
+        this._globalMergeWhitelist = [];
+        this._globalMergeBlacklist = [];
+        this._globalMergegroups = [];
         this._pointer = -1;
         this._recChanges = this._recChanges.bind(this);
 
@@ -46,6 +53,13 @@
 
 
 
+    p._logDebug = function() {
+        this._debug && console.log.apply(console, arguments);
+    };
+
+    p._openDebugger = function() {
+        if (this._debug) debugger;
+    };
 
 
     p.observeTree = function (obj, route) {
@@ -179,6 +193,16 @@
         }
         else {
             this._reverseRecord(rec);
+
+            while (this._pointer >= 0) {
+                var mrec = this._history[this._pointer];
+                if (!this._isMergeable(rec, mrec)) {
+                    break;
+                }
+
+                this._pointer--;
+                this._reverseRecord(mrec);
+            }
         }
     };
 
@@ -207,6 +231,16 @@
         }
         else {
             this._reverseRecord(rec);
+
+            while (this._pointer < this._history.length - 1) {
+                var mrec = this._history[this._pointer + 1];
+                if (!this._isMergeable(rec, mrec)) {
+                    break;
+                }
+
+                ++this._pointer;
+                this._reverseRecord(mrec);
+            }
         }
     };
 
@@ -426,10 +460,178 @@
 
 
 
+//--------------------------------------------------------------------------------------------------
+//  Merge
+//--------------------------------------------------------------------------------------------------
+    /**
+     * Set attributes whose change list will be merged
+     * @param obj - attributes in this object
+     * @param list - attribute list
+     */
+    p.setMergeWhitelist = function (obj, list) {
+        this.removeMergeWhitelist(obj);
+        this._mergeWhitelists.push({obj: obj, list: list});
+    };
+
+    p.getMergeWhitelist = function (obj) {
+        for (var i = 0, l = this._mergeWhitelists.length; i < l; ++i) {
+            if (this._mergeWhitelists[i].obj === obj) {
+                return this._mergeWhitelists[i];
+            }
+        }
+    };
+
+    p.removeMergeWhitelist = function (obj) {
+        for (var i = 0; i < this._mergeWhitelists.length; ++i) {
+            if (this._mergeWhitelists[i].obj === obj) {
+                this._mergeWhitelists.splice(i--, 1);
+            }
+        }
+    };
+
+    /**
+     * Set attributes whose change list will be merged
+     * @param obj - attributes in this object
+     * @param list - attribute list
+     */
+    p.setMergeBlacklist = function (obj, list) {
+        this.removeMergeBlacklist(obj);
+        this._mergeBlacklists.push({obj: obj, list: list});
+    };
+
+    p.getMergeBlacklist = function (obj) {
+        for (var i = 0, l = this._mergeBlacklists.length; i < l; ++i) {
+            if (this._mergeBlacklists[i].obj === obj) {
+                return this._mergeBlacklists[i];
+            }
+        }
+    };
+
+    p.removeMergeBlacklist = function (obj) {
+        for (var i = 0; i < this._mergeBlacklists.length; ++i) {
+            if (this._mergeBlacklists[i].obj === obj) {
+                this._mergeBlacklists.splice(i--, 1);
+            }
+        }
+    };
+
+    /**
+     * Set merge groups, attributes in the same group are considered as the same attribute when merging.
+     * @param obj
+     * @param { [[string]] } groups - a list of group, each group is a list of attributes.
+     */
+    p.setMergegroups = function (obj, groups) {
+        this._mergegroups.push({obj: obj, groups: groups});
+    };
+
+    p.getMergegroups = function (obj) {
+        for (var i = 0; i < this._mergegroups.length; ++i) {
+            if (this._mergegroups[i].obj === obj) {
+                return this._mergegroups[i];
+            }
+        }
+    };
+
+    p.removeMergegroups = function (obj) {
+        for (var i = 0; i < this._mergegroups.length; ++i) {
+            if (this._mergegroups[i].obj === obj) {
+                this._mergegroups.splice(i--, 1);
+            }
+        }
+    };
+
+    p.addToGlobalMergegroups = function (/* groups */) {
+        var args = arguments;
+
+        for(var i = 0; i < args.length; ++i) {
+            this._globalMergegroups.push(args[i]);
+        }
+    };
+
+    p.addToGlobalMergeWhitelist = function (/* attributes */) {
+        var args = arguments;
+
+        for (var i = 0, l = args.length; i < l; ++i) {
+            this._globalMergeWhitelist.push(args[i]);
+        }
+    };
+
+    p.removeFromGlobalMergeWhitelist = function (/* attributes */) {
+        var args = arguments;
+
+        this._globalMergeWhitelist = this._globalMergeWhitelist.filter(function (paramName) {
+            return Array.prototype.indexOf.call(args, paramName) === -1;
+        });
+    };
+
+    p.addToGlobalMergeBlacklist = function (/* attributes */) {
+        var args = arguments;
+
+        for (var i = 0, l = args.length; i < l; ++i) {
+            this._globalMergeBlacklist.push(args[i]);
+        }
+    };
+
+    p.removeFromGlobalMergeBlacklist = function (/* attributes */) {
+        var args = arguments;
+
+        this._globalMergeBlacklist = this._globalMergeBlacklist.filter(function (paramName) {
+            return Array.prototype.indexOf.call(args, paramName) === -1;
+        });
+    };
 
 
+    p._isMergeable = function (rec0, rec1) {
+        if (!rec0.name || rec0.object !== rec1.object) {
+            return false;
+        }
 
+        function passthrough(rec0) {
+            var lwl = this.getMergeWhitelist(rec0.object);
+            var lbl = this.getMergeBlacklist(rec0.object);
+            var gwl = this._globalMergeWhitelist;
+            var gbl = this._globalMergeBlacklist;
 
+            // Blacklist mode, if neither blacklist contains rec0, return true.
+            if (gbl.length !== 0 || lbl) {
+                if (gbl.indexOf(rec0.name) === -1 && (!lbl || lbl.list.indexOf(rec0.name) === -1)) {
+                    return true;
+                }
+            }
+
+            // If rec0 in global whitelist or in local whitelist, return true.
+            if (gwl.indexOf(rec0.name) !== -1 || (lwl && lwl.list.indexOf(rec0.name) !== -1)) {
+                return true;
+            }
+        }
+
+        if (!passthrough.call(this, rec0)) {
+            return false;
+        }
+
+        if (rec0.name === rec1.name) {
+            return true;
+        }
+
+        for (var i = 0; i < this._globalMergegroups.length; ++i) {
+            var group = this._globalMergegroups[i];
+            // If rec0.name and rec1.name in the same group
+            if (group.indexOf(rec0.name) !== -1 && group.indexOf(rec1.name) !== -1) {
+                return true;
+            }
+        }
+
+        var mgs = this.getMergegroups(rec0.object);
+        for (var i = 0; mgs && i < mgs.groups.length; ++i) {
+            var group = mgs.groups[i];
+            // If rec0.name and rec1.name in the same group
+            if (group.indexOf(rec0.name) !== -1 && group.indexOf(rec1.name) !== -1) {
+                return true;
+            }
+        }
+
+        return false;
+    };
 
 //--------------------------------------------------------------------------------------------------
 //  Polymer plugin
