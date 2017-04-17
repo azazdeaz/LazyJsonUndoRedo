@@ -13,18 +13,18 @@ Can be usefull for small editor tools but it's not recommended to be used in pro
 
 Object.observe() is only supported in Chrome 36+, Opera 23+, io.js and Nodejs 11.13+ yet, but LJUR is also usable with [polymer](https://github.com/polymer/polymer)([observe-js](https://github.com/Polymer/observe-js))
 
-####Demo
+#### Demo
 [edit json](http://codepen.io/azazdeaz/pen/ucqAm?editors=001)
 
 [edit maze](http://codepen.io/azazdeaz/pen/AEgGe?editors=001)
 
-####Install
+#### Install
 ```
 bower install --save LazyJsonUndoRedo
 npm install --save lazy-json-undo-redo
 ```
 
-####Unit tests
+#### Unit tests
 [native](http://azazdeaz.github.io/LazyJsonUndoRedo/test/test-native.html)
 
 [with polymer shim](http://azazdeaz.github.io/LazyJsonUndoRedo/test/test-polymer.html)
